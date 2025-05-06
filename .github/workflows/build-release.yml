@@ -3,7 +3,7 @@ name: Build and Release Windows Executable
 on:
   push:
     tags:
-      - 'v*'  # 匹配 v 开头的标签，如 v1.0.0 (注意改为小写v，更符合常规)
+      - 'v*'
 
 jobs:
   build-and-release:
@@ -13,8 +13,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
-    
+        fetch-depth: 0  # 获取完整提交历史
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -29,32 +29,39 @@ jobs:
     - name: Build with PyInstaller
       run: |
         pyinstaller lalc.spec
-        dir dist
         if (-not (Test-Path "dist\lalc.zip")) {
           Write-Error "lalc.zip not found in dist directory!"
           exit 1
         }
         
-    - name: Get contributors list
-      id: contributors
-      run: |
-        # 获取所有不重复的贡献者名单（Git 提交作者）
-        $contributors = git log --format='%aN' | sort -u | Where-Object { $_ -ne "" } | ForEach-Object { "- $_" }
-        $contributors = $contributors -join "`n"
-        echo "contributors<<EOF" >> $env:GITHUB_OUTPUT
-        echo "$contributors" >> $env:GITHUB_OUTPUT
-        echo "EOF" >> $env:GITHUB_OUTPUT
-        
-    - name: Get release notes from tag
+    - name: Generate Release Notes
       id: release-notes
       run: |
-        $tag = $env:GITHUB_REF -replace 'refs/tags/', ''
-        $notes = git tag -l --format='%(contents)' $tag
-        if (-not $notes) {
-          $notes = "No release notes provided."
+        # 获取当前版本号
+        $currentVersion = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        
+        # 获取当前tag的标注信息（原始格式）
+        $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
+        
+        # 获取上一个Release的内容
+        $previousRelease = gh api repos/${{ github.repository }}/releases/latest --jq '.body' 2>$null || ""
+        
+        # 提取历史记录部分
+        $historyContent = if ($previousRelease -match '(?s)<details>.*</details>') {
+          $matches[0]
+        } else {
+          ""
         }
+        
+        # 构建新Release内容
+        $newReleaseContent = @"
+## V$currentVersion
+$currentNotes
+$historyContent
+"@
+
         echo "notes<<EOF" >> $env:GITHUB_OUTPUT
-        echo "$notes" >> $env:GITHUB_OUTPUT
+        echo "$newReleaseContent" >> $env:GITHUB_OUTPUT
         echo "EOF" >> $env:GITHUB_OUTPUT
         
     - name: Create GitHub Release
@@ -64,10 +71,6 @@ jobs:
       with:
         files: dist/lalc.zip
         body: |
-          # 🧑‍💻 贡献者
-          ${{ steps.contributors.outputs.contributors }}
-          
-          # 📝 版本说明
           ${{ steps.release-notes.outputs.notes }}
         tag_name: ${{ github.ref_name }}
         name: Release ${{ github.ref_name }}
