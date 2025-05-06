@@ -3,7 +3,7 @@ name: Build and Release Windows Executable
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # 匹配 v 开头的标签，如 v3.1.6
 
 jobs:
   build-and-release:
@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 获取完整提交历史
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -37,14 +37,31 @@ jobs:
     - name: Generate Release Notes
       id: release-notes
       run: |
+        # 安装 GitHub CLI (如果尚未安装)
+        winget install --id GitHub.cli --silent || true
+        
         # 获取当前版本号
         $currentVersion = $env:GITHUB_REF -replace 'refs/tags/v', ''
         
-        # 获取当前tag的标注信息（原始格式）
+        # 获取当前tag的标注信息
         $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
         
-        # 获取上一个Release的内容
-        $previousRelease = gh api repos/${{ github.repository }}/releases/latest --jq '.body' 2>$null || ""
+        # 尝试获取上一个Release内容（使用API）
+        $headers = @{
+          "Authorization" = "token ${{ secrets.LALC_TOKEN }}"
+          "Accept" = "application/vnd.github.v3+json"
+        }
+        
+        try {
+          $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases" -Headers $headers
+          if ($releases.Count -gt 1) {
+            $previousRelease = $releases[1].body
+          } else {
+            $previousRelease = ""
+          }
+        } catch {
+          $previousRelease = ""
+        }
         
         # 提取历史记录部分
         $historyContent = if ($previousRelease -match '(?s)<details>.*</details>') {
