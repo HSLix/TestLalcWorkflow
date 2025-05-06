@@ -37,34 +37,35 @@ jobs:
     - name: Generate Release Notes
       id: release-notes
       run: |
-        # 安装 GitHub CLI (如果尚未安装)
-        winget install --id GitHub.cli --silent || true
-        
         # 获取当前版本号
         $currentVersion = $env:GITHUB_REF -replace 'refs/tags/v', ''
         
         # 获取当前tag的标注信息
         $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
         
-        # 尝试获取上一个Release内容（使用API）
+        # 使用GitHub API获取上一个Release内容
         $headers = @{
           "Authorization" = "token ${{ secrets.LALC_TOKEN }}"
           "Accept" = "application/vnd.github.v3+json"
         }
         
         try {
-          $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases" -Headers $headers
+          # 获取按创建时间降序排列的发布列表
+          $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases?per_page=2" -Headers $headers
+          
+          # 最新发布是$releases[0]，上一个发布是$releases[1]
           if ($releases.Count -gt 1) {
             $previousRelease = $releases[1].body
           } else {
             $previousRelease = ""
           }
         } catch {
+          Write-Output "无法获取历史发布: $_"
           $previousRelease = ""
         }
         
         # 提取历史记录部分
-        $historyContent = if ($previousRelease -match '(?s)<details>.*</details>') {
+        $historyContent = if ($previousRelease -and ($previousRelease -match '(?s)<details>.*</details>')) {
           $matches[0]
         } else {
           ""
@@ -72,7 +73,7 @@ jobs:
         
         # 构建新Release内容
         $newReleaseContent = @"
-        ## V$currentVersion
+        ## v$currentVersion
         $currentNotes
         $historyContent
         "@
