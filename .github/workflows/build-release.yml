@@ -43,6 +43,90 @@ jobs:
         # 获取当前tag的标注信息
         $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
         
+        # 固定提示语
+        $quarkLink = "- 如果下载出现问题，可以考虑[夸克网盘](https://pan.quark.cn/s/333d6608dddd)"
+
+        # 构建当前版本部分
+        $currentReleaseSection = @"
+        ## V$currentVersion
+        $currentNotes
+        "@
+
+        # 使用GitHub API获取上一个Release的body内容
+        $headers = @{
+          "Authorization" = "token ${{ secrets.LALC_TOKEN }}"
+          "Accept" = "application/vnd.github.v3+json"
+        }
+
+        try {
+          $releases = Invoke-RestMethod -Uri "https://api.github.com/repos/${{ github.repository }}/releases?per_page=1" -Headers $headers
+
+          if ($releases) {
+            $previousReleaseBody = $releases[0].body
+
+            # 提取旧的 <details> 内容（如果存在）
+            $oldHistory = ""
+            if ($previousReleaseBody -match '(?s)<details>.*?</details>') {
+              $oldHistory = $matches[0] -replace '<details>\s*<summary>.*?</summary>\s*', '' -replace '</details>', ''
+            }
+
+            # 提取上一版本的主要内容（非 <details> 部分）
+            $previousMainContent = if ($previousReleaseBody -match '(?s)^[\s\S]*?(?=<details>)') {
+              $matches[0]
+            } else {
+              $previousReleaseBody
+            }
+
+            # 构建新的 <details> 内容：上一版本内容 + 原来的历史内容
+            $newHistoryContent = @"
+            $previousMainContent
+
+            $oldHistory
+            "@
+
+            # 清理多余空白行
+            $newHistoryContent = $newHistoryContent -replace '\r?\n\s*\r?\n\s*\r?\n', "`n`n"
+
+            # 构建完整的发布说明
+            $fullReleaseNotes = @"
+        $quarkLink
+
+        $currentReleaseSection
+
+        <details>
+        <summary> 历史更新 | History </summary>
+
+        $newHistoryContent
+        </details>
+        "@
+          } else {
+            # 没有历史版本时只显示当前内容
+            $fullReleaseNotes = @"
+            $quarkLink
+
+            $currentReleaseSection
+            "@
+          }
+        } catch {
+          Write-Output "无法获取历史发布: $_"
+          $fullReleaseNotes = @"
+          $quarkLink
+
+          $currentReleaseSection
+        "@
+        }
+
+        echo "notes<<EOF" >> $env:GITHUB_OUTPUT
+        echo "$fullReleaseNotes" >> $env:GITHUB_OUTPUT
+        echo "EOF" >> $env:GITHUB_OUTPUT- name: Generate Release Notes
+      id: release-notes
+      run: |
+        # 获取当前版本号
+        $currentVersion = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        
+        # 获取当前tag的标注信息
+        $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
+        
         # 使用GitHub API获取上一个Release内容
         $headers = @{
           "Authorization" = "token ${{ secrets.LALC_TOKEN }}"
@@ -81,7 +165,8 @@ jobs:
         echo "notes<<EOF" >> $env:GITHUB_OUTPUT
         echo "$newReleaseContent" >> $env:GITHUB_OUTPUT
         echo "EOF" >> $env:GITHUB_OUTPUT
-        
+
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       env:
