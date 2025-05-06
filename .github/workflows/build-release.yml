@@ -43,11 +43,14 @@ jobs:
         # 获取当前tag的标注信息
         $currentNotes = git tag -l --format='%(contents)' "v$currentVersion"
 
+        # 将分号替换为分号加换行符
+        $currentNotes = $currentNotes -replace ';', ";`n"
+
         # 固定提示语
         $quarkLink = "- 如果下载出现问题，可以考虑[夸克网盘](https://pan.quark.cn/s/333d6608dddd)"
       
         # 使用普通字符串拼接代替 here-string
-        $currentReleaseSection = "## V$currentVersion`n$currentNotes"
+        $currentReleaseSection = "## v$currentVersion`n$currentNotes"
 
         # 使用GitHub API获取上一个Release的body内容
         $headers = @{
