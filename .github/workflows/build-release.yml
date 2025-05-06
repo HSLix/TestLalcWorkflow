@@ -55,10 +55,10 @@ jobs:
         
         # 构建新Release内容
         $newReleaseContent = @"
-## V$currentVersion
-$currentNotes
-$historyContent
-"@
+        ## V$currentVersion
+        $currentNotes
+        $historyContent
+        "@
 
         echo "notes<<EOF" >> $env:GITHUB_OUTPUT
         echo "$newReleaseContent" >> $env:GITHUB_OUTPUT
