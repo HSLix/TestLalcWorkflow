@@ -81,7 +81,7 @@ jobs:
             $newHistoryContent = $newHistoryContent -replace '\r?\n\s*\r?\n\s*\r?\n', "`n`n"
 
             # 构建完整的发布说明
-            $fullReleaseNotes = "$quarkLink`n$currentReleaseSection`n<details>`n<summary>历史更新 | History</summary>`n$newHistoryContent`n</details>"
+            $fullReleaseNotes = "$quarkLink`n$currentReleaseSection`n<details>`n<summary>历史更新 | History</summary>`n`n$newHistoryContent`n</details>"
           } else {
             # 没有历史版本时只显示当前内容
             $fullReleaseNotes = "$quarkLink`n`n$currentReleaseSection"
