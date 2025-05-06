@@ -45,12 +45,11 @@ jobs:
 
         # 固定提示语
         $quarkLink = "- 如果下载出现问题，可以考虑[夸克网盘](https://pan.quark.cn/s/333d6608dddd)"
-
-        # 构建当前版本内容
+      
         $currentReleaseSection = @"
-        ## V$currentVersion
-        $currentNotes
-        "@
+## V$currentVersion
+$currentNotes
+"@
 
         # 使用GitHub API获取上一个Release的body内容
         $headers = @{
@@ -79,41 +78,41 @@ jobs:
 
             # 构建新的 <details> 内容：上一版本内容 + 原来的历史内容
             $newHistoryContent = @"
-            $previousMainContent
+$previousMainContent
 
-            $oldHistory
-            "@
+$oldHistory
+"@
 
             # 清理多余空白行
             $newHistoryContent = $newHistoryContent -replace '\r?\n\s*\r?\n\s*\r?\n', "`n`n"
 
             # 构建完整的发布说明
             $fullReleaseNotes = @"
-            $quarkLink
+$quarkLink
 
-            $currentReleaseSection
+$currentReleaseSection
 
-            <details>
-            <summary> 历史更新 | History </summary>
+<details>
+<summary> 历史更新 | History </summary>
 
-            $newHistoryContent
-            </details>
-            "@
+$newHistoryContent
+</details>
+"@
           } else {
             # 没有历史版本时只显示当前内容
             $fullReleaseNotes = @"
-            $quarkLink
+$quarkLink
 
-            $currentReleaseSection
-            "@
+$currentReleaseSection
+"@
           }
         } catch {
           Write-Output "无法获取历史发布: $_"
           $fullReleaseNotes = @"
-          $quarkLink
+$quarkLink
 
-          $currentReleaseSection
-          "@
+$currentReleaseSection
+"@
         }
 
         echo "notes<<EOF" >> $env:GITHUB_OUTPUT
