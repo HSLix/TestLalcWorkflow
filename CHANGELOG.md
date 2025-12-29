@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.8](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.7...v3.2.8) (2025-12-29)
+
+
+### Bug Fixes
+
+* github ci 的 powershell 太老了，换个方式，希望能过 ([9f82cc6](https://github.com/HSLix/TestLalcWorkflow/commit/9f82cc6f3d44f814ccc94f8302174f12c8acc4a4))
+
 ## [3.2.7](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.6...v3.2.7) (2025-12-29)
 
 
