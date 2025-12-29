@@ -84,7 +84,9 @@ jobs:
 
           # 当前 release 的 body（release-please 已生成）
           $tag  = "${{ needs.release-please.outputs.tag_name }}"
-          $body = gh release view $tag --json body --jq .body | Out-String -Raw
+          $bodyLines = gh release view $tag --json body --jq .body
+          $body = $bodyLines -join "`n"
+
 
           # 合并
           $final = $prefix + "`n" + $body
