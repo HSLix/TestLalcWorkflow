@@ -99,4 +99,8 @@ exit /b %errorlevel%
 )
 
 echo Packup lalc process completed successfully. 
+:: ===== 调试：打印目录树 =====
+echo "======= 目录结构（调试） ======="
+powershell tree /F
+echo "======= 目录结构结束 ========="
 pause

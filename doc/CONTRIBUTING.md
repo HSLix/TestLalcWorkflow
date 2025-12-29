@@ -1,7 +1,7 @@
 # 项目架构简单介绍及开发建议
 - 推荐在 VSCode 进行开发
 
-- lalc_frontend，前端，初始化时用 `flutter create`，构建应用 `flutter run windows`。推荐下载插件 Flutter Intl 来方便国际化，这样一来只要编辑 arb 文件就能自动生成国际化配置代码。
+- lalc_frontend，前端，目前用的版本是 `3.35.7`，初始化时用 `flutter create`，构建应用 `flutter run windows`。推荐下载插件 Flutter Intl 来方便国际化，这样一来只要编辑 arb 文件就能自动生成国际化配置代码。
 
 - lalc_backend，后端，初始化时用 `uv sync` 来配置环境（uv 是一个 python 虚拟环境的工具，不了解的话请自行搜索下载使用）；由于涉及到平级目录互相调用，建议用 uv pip install -e . 来模块化项目。
 

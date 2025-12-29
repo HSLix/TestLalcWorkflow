@@ -63,30 +63,42 @@ jobs:
         shell: cmd
         run: packup_release.bat
 
-      # ---------- 6. 生成固定前缀 ----------
-      - name: Create fixed header
-        id: header
+      # ---------- 6. 读取原 Release Note 并拼接固定前缀 ----------
+      - name: Build final release note
+        id: final_note
         shell: pwsh
         run: |
+          # 固定前缀
           $mirrorChyanLink = "- (推荐，速度快质量好）[已有 Mirror酱 CDK？前往 Mirror酱 高速下载](https://mirrorchyan.com/zh/projects?rid=LALC)"
           $githubLink      = "- (可能会限流)[GitHub 最新 Release 下载](https://github.com/HSLix/LixAssistantLimbusCompany/releases/latest) | [Download the latest release from GitHub](https://github.com/HSLix/LixAssistantLimbusCompany/releases/latest)"
           $quarkLink       = "- （不定时更新）重要版本归档：[夸克网盘](https://pan.quark.cn/s/333d6608dddd) | Record Important Version in [KuakeDrive](https://pan.quark.cn/s/333d6608dddd)."
           $discordLink     = "- [加入 Discord 群聊](https://discord.gg/bVzCuBU4bC) | [Join the discord](https://discord.gg/bVzCuBU4bC)"
 
-          $header = "$mirrorChyanLink`n$githubLink`n$quarkLink`n$discordLink`n`n"
-          # 写入临时文件
-          $header | Out-File -FilePath fixed_header.md -Encoding utf8
-          # 输出文件路径供下一步使用
-          echo "header_file=fixed_header.md" >> $env:GITHUB_OUTPUT
+          $prefix = "$mirrorChyanLink`n$githubLink`n$quarkLink`n$discordLink`n`n"
 
-      # ---------- 7. 上传资产并追加前缀 ----------
-      - name: Upload asset & prepend fixed header
-        uses: softprops/action-gh-release@v2   # ← 用 v2，支持 body_path 不存在时报错
+          # 通过 GitHub CLI 读取当前 release 的 body（release-please 已生成）
+          $tag   = "${{ needs.release-please.outputs.tag_name }}"
+          $body  = gh release view $tag --json body --jq .body || ""
+
+          # 合并：前缀 + 换行 + 原正文
+          $final = "$prefix`n$body"
+
+          # 写到文件（避免 bash 转义问题）
+          $final | Out-File -FilePath final_release_note.md -Encoding utf8
+
+          # 输出文件路径
+          echo "note_file=final_release_note.md" >> $env:GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.LALC_TOKEN }}
+
+      # ---------- 7. 上传资产 + 更新正文 ----------
+      - name: Upload asset & update release note
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.LALC_TOKEN }}
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
-          body_path: ${{ steps.header.outputs.header_file }}  # 现在文件存在
-          files: lalc.zip                                       # 确认根目录有 lalc.zip
+          body_path: ${{ steps.final_note.outputs.note_file }}
+          files: lalc.zip          # 确认根目录存在
           prerelease: ${{ contains(needs.release-please.outputs.tag_name, 'alpha') ||
                           contains(needs.release-please.outputs.tag_name, 'beta') }}
