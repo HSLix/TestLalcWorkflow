@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.3](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.2...v3.2.3) (2025-12-29)
+
+
+### Bug Fixes
+
+* 查看生成 lalc zip 的目录结构并尝试修复 release note 覆盖的问题 ([40829ee](https://github.com/HSLix/TestLalcWorkflow/commit/40829ee22a7c9e4182d3a116e61d3f6412a88f1b))
+
 ## [3.2.2](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.1...v3.2.2) (2025-12-29)
 
 
