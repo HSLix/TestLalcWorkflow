@@ -74,18 +74,19 @@ jobs:
           $discordLink     = "- [加入 Discord 群聊](https://discord.gg/bVzCuBU4bC) | [Join the discord](https://discord.gg/bVzCuBU4bC)"
 
           $header = "$mirrorChyanLink`n$githubLink`n$quarkLink`n$discordLink`n`n"
-          echo "header<<EOF" >> $env:GITHUB_OUTPUT
-          echo $header >> $env:GITHUB_OUTPUT
-          echo "EOF" >> $env:GITHUB_OUTPUT
+          # 写入临时文件
+          $header | Out-File -FilePath fixed_header.md -Encoding utf8
+          # 输出文件路径供下一步使用
+          echo "header_file=fixed_header.md" >> $env:GITHUB_OUTPUT
 
-      # ---------- 7. 更新 Release 正文并上传资产 ----------
+      # ---------- 7. 上传资产并追加前缀 ----------
       - name: Upload asset & prepend fixed header
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2   # ← 用 v2，支持 body_path 不存在时报错
         env:
           GITHUB_TOKEN: ${{ secrets.LALC_TOKEN }}
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
-          body_path: ${{ steps.header.outputs.header_file }}
-          files: lalc.zip
+          body_path: ${{ steps.header.outputs.header_file }}  # 现在文件存在
+          files: lalc.zip                                       # 确认根目录有 lalc.zip
           prerelease: ${{ contains(needs.release-please.outputs.tag_name, 'alpha') ||
                           contains(needs.release-please.outputs.tag_name, 'beta') }}
