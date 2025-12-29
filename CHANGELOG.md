@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.5](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.4...v3.2.5) (2025-12-29)
+
+
+### Bug Fixes
+
+* tmd 这个body 换行这次绝对能行 ([7804af8](https://github.com/HSLix/TestLalcWorkflow/commit/7804af877b16436c7699837899f123552fc0e2cf))
+
 ## [3.2.4](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.3...v3.2.4) (2025-12-29)
 
 
