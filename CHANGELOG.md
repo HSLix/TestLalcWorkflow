@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.1...v3.2.2) (2025-12-29)
+
+
+### Bug Fixes
+
+* 尝试修复release没有得到lalc.zip的问题 ([e8371ad](https://github.com/HSLix/TestLalcWorkflow/commit/e8371ad85e43e512b1760d8d922a8150232efcda))
+
 ## [3.2.1](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.0...v3.2.1) (2025-12-29)
 
 
