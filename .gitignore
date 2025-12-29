@@ -1,7 +1,2 @@
-# .gitignore
-
-/log/*
-/video/*
-/dist/
-/build/
-__pycache__/
+lalc/
+lalc.zip

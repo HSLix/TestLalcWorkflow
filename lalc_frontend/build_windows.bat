@@ -1,0 +1,1 @@
+flutter run --dart-define=CURRENT_VERSION=v4.0.0
