@@ -3,7 +3,7 @@ name: Build and Release Windows Executable
 on:
   push:
     branches:
-      - master
+      - main
 
 permissions:
   contents: write
