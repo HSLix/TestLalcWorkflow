@@ -74,24 +74,28 @@ jobs:
           $quarkLink       = "- （不定时更新）重要版本归档：[夸克网盘](https://pan.quark.cn/s/333d6608dddd) | Record Important Version in [KuakeDrive](https://pan.quark.cn/s/333d6608dddd)."
           $discordLink     = "- [加入 Discord 群聊](https://discord.gg/bVzCuBU4bC) | [Join the discord](https://discord.gg/bVzCuBU4bC)"
 
-          $prefix = "$mirrorChyanLink`n$githubLink`n$quarkLink`n$discordLink`n`n"
+          $prefix = @"
+          $mirrorChyanLink
+          $githubLink
+          $quarkLink
+          $discordLink
 
-          # 通过 GitHub CLI 读取
+          "@
+
           # 当前 release 的 body（release-please 已生成）
-          $tag   = "${{ needs.release-please.outputs.tag_name }}"
-          $body  = gh release view $tag --json body --jq .body || ""
-          $body = $body -replace '\\n', "`n"
+          $tag  = "${{ needs.release-please.outputs.tag_name }}"
+          $body = gh release view $tag --json body --jq .body | Out-String -Raw
 
-          # 合并：前缀 + 换行 + 原正文
-          $final = "$prefix`n$body"
+          # 合并
+          $final = $prefix + "`n" + $body
 
-          # 写到文件（避免 bash 转义问题）
+          # 写入文件
           $final | Out-File -FilePath final_release_note.md -Encoding utf8
 
-          # 输出文件路径
           echo "note_file=final_release_note.md" >> $env:GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.LALC_TOKEN }}
+
 
       # ---------- 7. 上传资产 + 更新正文 ----------
       - name: Upload asset & update release note
