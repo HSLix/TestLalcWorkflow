@@ -50,6 +50,17 @@ if exist "%BACK_DST%\lalc_backend.int" (
 echo [6/8] Building Flutter ...
 cd /d "lalc_frontend"
 
+:: Check if windows folder exists, if not create it
+if not exist "windows" (
+    echo Windows folder not found, creating with flutter create...
+    flutter create --platforms windows .
+    if %errorlevel% neq 0 (
+        echo Failed to create windows platform files!
+        cd /d "%~dp0"
+        exit /b %errorlevel%
+    )
+)
+
 :: Read version from version.txt
 for /f "usebackq" %%i in ("../version.txt") do set VERSION=%%i
 cmd /c "flutter build windows --dart-define=CURRENT_VERSION=v!VERSION!"
