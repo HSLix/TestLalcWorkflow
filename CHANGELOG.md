@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.7](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.6...v3.2.7) (2025-12-29)
+
+
+### Bug Fixes
+
+* ChatGPT 和我保证这次一定行，我且信一次 ([6d86f19](https://github.com/HSLix/TestLalcWorkflow/commit/6d86f19be7e44d8951e471241d365afca738bd48))
+
 ## [3.2.6](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.5...v3.2.6) (2025-12-29)
 
 
