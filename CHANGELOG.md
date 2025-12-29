@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.4](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.3...v3.2.4) (2025-12-29)
+
+
+### Bug Fixes
+
+* fix the  packup_release bat ([4db764e](https://github.com/HSLix/TestLalcWorkflow/commit/4db764e80e08805182fa0d1eaf9541e5f795cbdc))
+
 ## [3.2.3](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.2...v3.2.3) (2025-12-29)
 
 
