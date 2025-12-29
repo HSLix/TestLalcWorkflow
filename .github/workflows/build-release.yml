@@ -76,9 +76,11 @@ jobs:
 
           $prefix = "$mirrorChyanLink`n$githubLink`n$quarkLink`n$discordLink`n`n"
 
-          # 通过 GitHub CLI 读取当前 release 的 body（release-please 已生成）
+          # 通过 GitHub CLI 读取
+          当前 release 的 body（release-please 已生成）
           $tag   = "${{ needs.release-please.outputs.tag_name }}"
           $body  = gh release view $tag --json body --jq .body || ""
+          $body = $body -replace '\\n', "`n"
 
           # 合并：前缀 + 换行 + 原正文
           $final = "$prefix`n$body"
