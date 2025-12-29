@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.6](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.5...v3.2.6) (2025-12-29)
+
+
+### Bug Fixes
+
+* build release 字符串内有一个注释补上，求求你过吧，我想睡觉 ([1d92a96](https://github.com/HSLix/TestLalcWorkflow/commit/1d92a967934f8dc763bf31fda193a17b605b8081))
+
 ## [3.2.5](https://github.com/HSLix/TestLalcWorkflow/compare/v3.2.4...v3.2.5) (2025-12-29)
 
 
